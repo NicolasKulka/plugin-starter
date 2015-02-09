@@ -1,71 +1,49 @@
 <?php
 /**
  * Plugin Name:         Plugin starter
- * Plugin URI:          
+ * Plugin URI:          http://www.plateformewpdigital.fr
  * Description:         Plugin starter
  * Author:              Nicolas Kulka
- * Author URI:          http://kulka-nicolas.olympe.in/
+ * Author URI:          http://nicolaskulka.fr/
  *
- * Version:             1.00
- * Requires at least:   4.0.0
+ * Version:             1.1
+ * Domain Path: languages
+ * Text Domain: plugin-starter
+ * Depends:
  */
 
-if( !class_exists( 'PluginStarter' ) ) {
+// don't load directly
+if ( !defined( 'ABSPATH' ) ) {
+    die( '-1' );
+}
 
-	// Load configuration
-    require_once realpath( dirname( __FILE__ ) ) . '/include/config.php';
 
-    // Load textdomain
-    load_plugin_textdomain( PLUGIN_STARTER_DOMAIN, NULL, PLUGIN_STARTER_PATH . '/languages' );
+// Plugin constants
+define( 'PLUGIN_STARTER_VERSION', '1.1' );
+define( 'PLUGIN_STARTER_FOLDER', 'plugin-starter' );
 
-    // Load language
-    require_once PLUGIN_STARTER_COMPLETE_PATH . '/include/lang.php';
+define( 'PLUGIN_STARTER_URL', plugin_dir_url( __FILE__ ) );
+define( 'PLUGIN_STARTER_DIR', plugin_dir_path( __FILE__ ) );
 
-	/**
-     * Main class of the plugin
-     */
-    class PluginStarter {
-
-        /**
-         * Register hooks used by the plugin
-         */
-        public static function hooks() {
-            // Register (de)activation hook
-            register_activation_hook( __FILE__, array( __CLASS__, 'activate' ) );
-            register_deactivation_hook( __FILE__, array( __CLASS__, 'deactivate' ) );
-            register_uninstall_hook( __FILE__, array( __CLASS__, 'uninstall' ) );
-
-            add_action( 'init', array( __CLASS__, 'init' ) );
+// Function for easy load files
+function _plugin_starter_load_files( $dir, $files, $prefix = '' ) {
+    foreach ( $files as $file ) {
+        if ( is_file( $dir . $prefix . $file . ".php" ) ) {
+            require_once($dir . $prefix . $file . ".php");
         }
-
-        /**
-         * What to do on plugin activation
-         */
-        public static function activate() {
-            flush_rewrite_rules();
-        }
-
-        /**
-         * What to do on plugin deactivation
-         */
-        public static function deactivate() {
-            // Nothing for now.
-        }
-
-        /**
-         * What to do on plugin uninstallation
-         */
-        public static function uninstall() {
-            // Nothing for now.
-        }
-
-        /**
-         * Plugin init:
-         */
-        public static function init() {
-        }
-
     }
+}
 
-    PluginStarter::hooks();
+// Plugin client classes
+_plugin_starter_load_files( PLUGIN_STARTER_DIR . 'include/', array( 'lang' ) );
+_plugin_starter_load_files( PLUGIN_STARTER_DIR . 'classes/', array( 'plugin' ) );
+
+add_action( 'plugins_loaded', 'init_plugin_starter_plugin' );
+function init_plugin_starter_plugin() {
+ 
+    // Load textdomain
+    load_plugin_textdomain( 'plugin-starter', NULL, PLUGIN_STARTER_DIR . '/languages' );
+
+    // Load client
+    new PluginStarter();
 }
